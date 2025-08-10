@@ -1,0 +1,47 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background: #f9f9f9;
+}
+
+.container {
+  max-width: 600px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+#drop-area {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 30px;
+  text-align: center;
+  margin-bottom: 15px;
+  cursor: pointer;
+  background: #fafafa;
+}
+
+#drop-area.dragover {
+  background: #e0f7fa;
+  border-color: #00acc1;
+}
+
+button {
+  cursor: pointer;
+  padding: 8px 15px;
+  margin-top: 10px;
+  border: none;
+  background: #007bff;
+  color: white;
+  border-radius: 5px;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+progress {
+  margin-top: 10px;
+}
