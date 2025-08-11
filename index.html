@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Image Resizer & Converter</title>
   <link rel="stylesheet" href="style.css" />
+  
+  <!-- Include JSZip and FileSaver -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
@@ -40,8 +42,6 @@
     <button id="processBtn">Resize & Convert</button>
 
     <progress id="progressBar" value="0" max="100" style="width:100%; display:none;"></progress>
-
-    <div id="downloadLinks"></div>
   </div>
 
   <script src="script.js"></script>
