@@ -50,7 +50,7 @@ function clearDownloadButtons() {
   downloadContainer.innerHTML = '';
 }
 
-function resizeImage(img, width, height, format) {
+async function resizeImage(img, width, height, format) {
   return new Promise(resolve => {
     const image = new Image();
     image.onload = () => {
@@ -59,39 +59,90 @@ function resizeImage(img, width, height, format) {
       canvas.height = (height === 'original') ? image.height : height;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob(blob => resolve(blob), format);
+
+      if (format === 'application/pdf') {
+        // For PDF conversion, return base64 JPEG data url (good quality and compatibility)
+        const imgData = canvas.toDataURL('image/jpeg');
+        resolve(imgData);
+      } else {
+        canvas.toBlob(blob => resolve(blob), format);
+      }
     };
     image.src = img.src;
   });
 }
 
 async function processAndPrepareZip(images, width, height, format) {
-  const zip = new JSZip();
-  progressBar.style.display = 'block';
-  progressBar.value = 0;
+  if (format === 'application/pdf') {
+    // Create PDF with one image per page
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+    progressBar.style.display = 'block';
+    progressBar.value = 0;
 
-  for (let i = 0; i < images.length; i++) {
-    progressBar.value = Math.round((i / images.length) * 100);
+    for (let i = 0; i < images.length; i++) {
+      progressBar.value = Math.round((i / images.length) * 100);
 
-    const img = images[i];
-    const blob = await resizeImage(img, width, height, format);
-    const ext = format.split('/')[1];
-    const filename = `resized_${img.name.replace(/\.[^/.]+$/, "")}.${ext}`;
-    zip.file(filename, blob);
+      const imgDataUrl = await resizeImage(images[i], width, height, format);
+
+      const imgProps = pdf.getImageProperties(imgDataUrl);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      if (i > 0) pdf.addPage();
+      pdf.addImage(imgDataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+    }
+
+    progressBar.value = 100;
+    progressBar.style.display = 'none';
+
+    return pdf.output('blob');
+  } else {
+    // Create zip of images
+    const zip = new JSZip();
+    progressBar.style.display = 'block';
+    progressBar.value = 0;
+
+    for (let i = 0; i < images.length; i++) {
+      progressBar.value = Math.round((i / images.length) * 100);
+
+      const blob = await resizeImage(images[i], width, height, format);
+      const ext = format.split('/')[1];
+      const filename = `resized_${images[i].name.replace(/\.[^/.]+$/, "")}.${ext}`;
+      zip.file(filename, blob);
+    }
+
+    progressBar.value = 100;
+    progressBar.style.display = 'none';
+
+    return await zip.generateAsync({ type: 'blob' });
   }
-
-  progressBar.value = 100;
-  progressBar.style.display = 'none';
-
-  const content = await zip.generateAsync({ type: 'blob' });
-  return content;
 }
 
 async function processAndPrepareSingleImage(img, width, height, format) {
-  progressBar.style.display = 'block';
-  const blob = await resizeImage(img, width, height, format);
-  progressBar.style.display = 'none';
-  return blob;
+  if (format === 'application/pdf') {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+
+    progressBar.style.display = 'block';
+
+    const imgDataUrl = await resizeImage(img, width, height, format);
+
+    const imgProps = pdf.getImageProperties(imgDataUrl);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+    pdf.addImage(imgDataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+
+    progressBar.style.display = 'none';
+
+    return pdf.output('blob');
+  } else {
+    progressBar.style.display = 'block';
+    const blob = await resizeImage(img, width, height, format);
+    progressBar.style.display = 'none';
+    return blob;
+  }
 }
 
 function createDownloadButton(name, blob) {
@@ -123,16 +174,15 @@ processBtn.addEventListener('click', async () => {
   const format = formatSelect.value;
 
   if (images.length === 1) {
-    // Single image: resize and prepare download button
     const blob = await processAndPrepareSingleImage(images[0], w, h, format);
-    const ext = format.split('/')[1];
+    const ext = format === 'application/pdf' ? 'pdf' : format.split('/')[1];
     const filename = `resized_${images[0].name.replace(/\.[^/.]+$/, "")}.${ext}`;
     const btn = createDownloadButton(filename, blob);
     downloadContainer.appendChild(btn);
   } else {
-    // Multiple images: create zip and prepare download button
-    const zipBlob = await processAndPrepareZip(images, w, h, format);
-    const btn = createDownloadButton('resized_images.zip', zipBlob);
+    const blob = await processAndPrepareZip(images, w, h, format);
+    const filename = format === 'application/pdf' ? 'resized_images.pdf' : 'resized_images.zip';
+    const btn = createDownloadButton(filename, blob);
     downloadContainer.appendChild(btn);
   }
 });
