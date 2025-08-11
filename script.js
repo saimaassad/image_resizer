@@ -94,5 +94,14 @@ processBtn.addEventListener('click', async () => {
 
   const format = formatSelect.value;
 
-  await processAndDownloadZip(images, w, h, format);
+  if (images.length === 1) {
+    // Single image: resize and download directly
+    const blob = await resizeImage(images[0], w, h, format);
+    const ext = format.split('/')[1];
+    const filename = `resized_${images[0].name.replace(/\.[^/.]+$/, "")}.${ext}`;
+    saveAs(blob, filename);
+  } else {
+    // Multiple images: zip and download
+    await processAndDownloadZip(images, w, h, format);
+  }
 });
