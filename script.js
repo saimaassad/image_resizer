@@ -8,6 +8,7 @@ const progressBar = document.getElementById('progressBar');
 const downloadContainer = document.getElementById('downloadContainer');
 
 let images = [];
+let processedCount = 0;  // Number of images already converted
 
 selectFilesBtn.addEventListener('click', () => fileElem.click());
 
@@ -165,6 +166,14 @@ processBtn.addEventListener('click', async () => {
     return;
   }
 
+  // Only process newly added images since last conversion
+  const newImages = images.slice(processedCount);
+
+  if (newImages.length === 0) {
+    alert('No new images to convert. Please upload more images.');
+    return;
+  }
+
   clearDownloadButtons();
 
   let [w, h] = sizeSelect.value === 'original'
@@ -173,16 +182,19 @@ processBtn.addEventListener('click', async () => {
 
   const format = formatSelect.value;
 
-  if (images.length === 1) {
-    const blob = await processAndPrepareSingleImage(images[0], w, h, format);
+  if (newImages.length === 1) {
+    const blob = await processAndPrepareSingleImage(newImages[0], w, h, format);
     const ext = format === 'application/pdf' ? 'pdf' : format.split('/')[1];
-    const filename = `resized_${images[0].name.replace(/\.[^/.]+$/, "")}.${ext}`;
+    const filename = `resized_${newImages[0].name.replace(/\.[^/.]+$/, "")}.${ext}`;
     const btn = createDownloadButton(filename, blob);
     downloadContainer.appendChild(btn);
   } else {
-    const blob = await processAndPrepareZip(images, w, h, format);
+    const blob = await processAndPrepareZip(newImages, w, h, format);
     const filename = format === 'application/pdf' ? 'resized_images.pdf' : 'resized_images.zip';
     const btn = createDownloadButton(filename, blob);
     downloadContainer.appendChild(btn);
   }
+
+  // Mark all images as processed
+  processedCount = images.length;
 });
