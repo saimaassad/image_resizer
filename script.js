@@ -67,6 +67,23 @@ function resizeImage(img, width, height, format) {
   });
 }
 
+async function processAndDownloadZip(images, width, height, format) {
+  const zip = new JSZip();
+
+  for (let i = 0; i < images.length; i++) {
+    const img = images[i];
+    const blob = await resizeImage(img, width, height, format);
+    const ext = format.split('/')[1];
+    const filename = `resized_${img.name.replace(/\.[^/.]+$/, "")}.${ext}`;
+    zip.file(filename, blob);
+  }
+
+  // Generate ZIP file blob
+  zip.generateAsync({ type: 'blob' }).then(content => {
+    saveAs(content, 'resized_images.zip'); // triggers download using FileSaver.js
+  });
+}
+
 processBtn.addEventListener('click', async () => {
   if(images.length === 0) {
     alert('Please upload some images first.');
