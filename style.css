@@ -45,3 +45,19 @@ button:hover {
 progress {
   margin-top: 10px;
 }
+
+.download-button {
+  display: inline-block;
+  margin: 5px 5px 0 0;
+  padding: 8px 15px;
+  background: #28a745;
+  color: white;
+  border-radius: 5px;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+.download-button:hover {
+  background: #1e7e34;
+}
