@@ -1,63 +1,186 @@
+/* Reset & base */
+* {
+  box-sizing: border-box;
+}
+
 body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
-  background: #f9f9f9;
-}
-
-.container {
-  max-width: 600px;
-  margin: auto;
-  background: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-#drop-area {
-  border: 2px dashed #ccc;
-  border-radius: 8px;
-  padding: 30px;
+/* Container */
+.container {
+  background: #fff;
+  color: #333;
+  max-width: 600px;
+  width: 100%;
+  border-radius: 20px;
+  padding: 30px 40px;
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.1),
+    0 10px 20px rgba(101, 70, 255, 0.2);
   text-align: center;
-  margin-bottom: 15px;
+}
+
+/* Heading */
+h1 {
+  font-weight: 700;
+  font-size: 2.8rem;
+  margin-bottom: 20px;
+  background: linear-gradient(90deg, #6a11cb, #2575fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Drop area */
+#drop-area {
+  border: 3px dashed #6a11cb;
+  border-radius: 15px;
+  background: #f5f7ff;
+  padding: 40px 20px;
+  margin-bottom: 25px;
   cursor: pointer;
-  background: #fafafa;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  color: #6a11cb;
+  font-weight: 600;
+  font-size: 1.2rem;
+  user-select: none;
 }
 
 #drop-area.dragover {
-  background: #e0f7fa;
-  border-color: #00acc1;
+  background-color: #dbe4ff;
+  border-color: #2575fc;
+  color: #2575fc;
 }
 
-button {
-  cursor: pointer;
-  padding: 8px 15px;
-  margin-top: 10px;
+#drop-area p {
+  margin: 0;
+}
+
+#select-files {
+  background: #6a11cb;
   border: none;
-  background: #007bff;
-  color: white;
-  border-radius: 5px;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-left: 10px;
+  transition: background 0.3s ease;
 }
 
-button:hover {
-  background: #0056b3;
+#select-files:hover {
+  background: #2575fc;
 }
 
-progress {
-  margin-top: 10px;
-}
-
-.download-button {
-  display: inline-block;
-  margin: 5px 5px 0 0;
-  padding: 8px 15px;
-  background: #28a745;
-  color: white;
-  border-radius: 5px;
-  text-decoration: none;
+/* Select dropdowns */
+select {
+  width: 100%;
+  padding: 12px 15px;
+  margin: 10px 0 25px 0;
+  border-radius: 12px;
+  border: 2px solid #6a11cb;
+  background: #f5f7ff;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #333;
+  transition: border-color 0.3s ease;
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #6a11cb 50%),
+    linear-gradient(135deg, #6a11cb 50%, transparent 50%);
+  background-position:
+    calc(100% - 20px) calc(1em + 2px),
+    calc(100% - 15px) calc(1em + 2px);
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
   cursor: pointer;
+}
+
+select:focus {
+  outline: none;
+  border-color: #2575fc;
+}
+
+/* Process button */
+#processBtn {
+  background: linear-gradient(90deg, #6a11cb, #2575fc);
+  border: none;
+  padding: 15px 0;
+  border-radius: 15px;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: white;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  box-shadow: 0 4px 15px rgba(101, 70, 255, 0.5);
+}
+
+#processBtn:hover {
+  background: linear-gradient(90deg, #2575fc, #6a11cb);
+}
+
+/* Progress bar */
+progress {
+  width: 100%;
+  height: 20px;
+  border-radius: 15px;
+  overflow: hidden;
+  margin-top: 20px;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+progress::-webkit-progress-bar {
+  background-color: #e0e0e0;
+}
+
+progress::-webkit-progress-value {
+  background: linear-gradient(90deg, #6a11cb, #2575fc);
+  border-radius: 15px;
+}
+
+/* Download buttons container */
+#downloadContainer {
+  margin-top: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* Download buttons */
+.download-button {
+  background: linear-gradient(90deg, #2575fc, #6a11cb);
+  padding: 12px 25px;
+  border-radius: 50px;
+  color: white;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(37, 117, 252, 0.7);
+  transition: background 0.3s ease;
   user-select: none;
 }
 
 .download-button:hover {
-  background: #1e7e34;
+  background: linear-gradient(90deg, #6a11cb, #2575fc);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .container {
+    padding: 25px 20px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
 }
