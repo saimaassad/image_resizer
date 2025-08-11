@@ -1,12 +1,18 @@
 User-agent: *
-# Allow all crawlers to access everything
 Allow: /
 
-# Block access to sensitive or irrelevant files/folders
+# Disallow crawling of non-essential or private files/folders
 Disallow: /admin/
-Disallow: /cgi-bin/
-Disallow: /tmp/
+Disallow: /login/
+Disallow: /signup/
 Disallow: /private/
+Disallow: /tmp/
+
+# Block certain file types from being indexed
+Disallow: /*.json$
+Disallow: /*.csv$
+Disallow: /*.zip$
+Disallow: /*.pdf$
 
 # Sitemap location
 Sitemap: https://fast-image-resizer.netlify.app/sitemap.xml
