@@ -5,6 +5,7 @@ const sizeSelect = document.getElementById('sizeSelect');
 const formatSelect = document.getElementById('formatSelect');
 const processBtn = document.getElementById('processBtn');
 const progressBar = document.getElementById('progressBar');
+const downloadContainer = document.getElementById('downloadContainer');
 
 let images = [];
 
@@ -42,6 +43,11 @@ function handleFiles(files) {
     }
   }
   progressBar.style.display = 'none';
+  clearDownloadButtons();
+}
+
+function clearDownloadButtons() {
+  downloadContainer.innerHTML = '';
 }
 
 function resizeImage(img, width, height, format) {
@@ -59,7 +65,7 @@ function resizeImage(img, width, height, format) {
   });
 }
 
-async function processAndDownloadZip(images, width, height, format) {
+async function processAndPrepareZip(images, width, height, format) {
   const zip = new JSZip();
   progressBar.style.display = 'block';
   progressBar.value = 0;
@@ -77,9 +83,29 @@ async function processAndDownloadZip(images, width, height, format) {
   progressBar.value = 100;
   progressBar.style.display = 'none';
 
-  zip.generateAsync({ type: 'blob' }).then(content => {
-    saveAs(content, 'resized_images.zip');
-  });
+  const content = await zip.generateAsync({ type: 'blob' });
+  return content;
+}
+
+async function processAndPrepareSingleImage(img, width, height, format) {
+  progressBar.style.display = 'block';
+  const blob = await resizeImage(img, width, height, format);
+  progressBar.style.display = 'none';
+  return blob;
+}
+
+function createDownloadButton(name, blob) {
+  const url = URL.createObjectURL(blob);
+  const btn = document.createElement('a');
+  btn.href = url;
+  btn.download = name;
+  btn.textContent = `Download ${name}`;
+  btn.className = 'download-button';
+  btn.onclick = () => {
+    // Release the object URL after download starts
+    setTimeout(() => URL.revokeObjectURL(url), 100);
+  };
+  return btn;
 }
 
 processBtn.addEventListener('click', async () => {
@@ -88,6 +114,8 @@ processBtn.addEventListener('click', async () => {
     return;
   }
 
+  clearDownloadButtons();
+
   let [w, h] = sizeSelect.value === 'original'
     ? ['original', 'original']
     : sizeSelect.value.split('x').map(Number);
@@ -95,13 +123,16 @@ processBtn.addEventListener('click', async () => {
   const format = formatSelect.value;
 
   if (images.length === 1) {
-    // Single image: resize and download directly
-    const blob = await resizeImage(images[0], w, h, format);
+    // Single image: resize and prepare download button
+    const blob = await processAndPrepareSingleImage(images[0], w, h, format);
     const ext = format.split('/')[1];
     const filename = `resized_${images[0].name.replace(/\.[^/.]+$/, "")}.${ext}`;
-    saveAs(blob, filename);
+    const btn = createDownloadButton(filename, blob);
+    downloadContainer.appendChild(btn);
   } else {
-    // Multiple images: zip and download
-    await processAndDownloadZip(images, w, h, format);
+    // Multiple images: create zip and prepare download button
+    const zipBlob = await processAndPrepareZip(images, w, h, format);
+    const btn = createDownloadButton('resized_images.zip', zipBlob);
+    downloadContainer.appendChild(btn);
   }
 });
